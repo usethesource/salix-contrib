@@ -17,9 +17,9 @@ SalixApp[Model] chartApp(str id = "charts")
 App[Model] chartWebApp()
   = webApp(chartApp(), |project://salix/src/main/rascal|);
 
-alias Model = ChartData;
+alias Model = tuple[lrel[value,value] clicks, ChartData cd];
 
-Model init() = demoData();
+Model init() = <[], demoData()>;
 
 data Msg 
   = doIt()
@@ -28,9 +28,9 @@ data Msg
 
 Model update(Msg msg, Model m) {
     switch (msg) {
-        case doIt(): m = demoData(n=arbInt(20));
+        case doIt(): m.cd = demoData(n=arbInt(20));
         case myClick(value v1, value v2):
-          println("v1 = <v1>, v2 = <v2>");
+          m.clicks += [<v1, v2>];
     }
     return m;
 }
@@ -66,5 +66,11 @@ Chart demoChart(ChartData theData, ChartType \type=\bar(), str title="Chart", Ch
 void view(Model m) {
     h2("Charts demo");
     button(onClick(doIt()), "Do it");
-    charts("mychart", demoChart(m), event=onClickChart(myClick));
+    h3("clicks:");
+    ul(() {
+        for (<value v1, value v2> <- m.clicks) {
+            li("Clicked at <v1>, <v2>");
+        }
+    });
+    charts("mychart", demoChart(m.cd), event=onClickChart(myClick));
 }

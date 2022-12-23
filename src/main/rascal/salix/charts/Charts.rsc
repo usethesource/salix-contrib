@@ -23,10 +23,9 @@ void charts(str name, Chart c, Attr event=null(), str width="600px", str height=
 
   withExtra(("chart": c), () {
     div(class("salix-alien"), id(name), style(("width": width, "height": height)) 
-      , attr("onclick", "$salix.registerAlien(\'<name>\', chartpatch);"), () {
+      , attr("onclick", "$salix.registerAlien(\'<name>\', $chartpatch_<name>);"), () {
         script(src("https://cdn.jsdelivr.net/npm/chart.js@4.1.1/dist/chart.umd.min.js"));
-        script("function chartpatch(patch) {
-               '  console.log(\'patching chart \' + JSON.stringify(patch, null, 3));
+        script("function $chartpatch_<name>(patch) {
                '  let ctx = document.getElementById(\'chart_<name>\');
                '  let x = patch.edits[0].extra;
                '  <if (!(event is null)) {>
