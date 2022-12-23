@@ -12,8 +12,9 @@ Attr onClickChart(Msg(value,value) f) = event("clickChart", targetValues(f));
 
 Hnd targetValues(Msg(value,value) vals2msg) = handler("targetValues", encode(vals2msg));
 
-
-void charts(str name, Chart c, Attr event=null(), str width="min(75%,800px)", str height="min(75%,800px)") {
+// removing/adding the event handler dynamically 
+// (e.g. based on some flag in the model) won't work.
+void charts(str name, Chart c, Attr event=null(), str width="600px", str height="400px") {
   if (!(event is null)) {
     if (event.name != "clickChart") {
       throw "Only onClickChart is supported as event for charts";
@@ -21,7 +22,8 @@ void charts(str name, Chart c, Attr event=null(), str width="min(75%,800px)", st
   }
 
   withExtra(("chart": c), () {
-    div(class("salix-alien"), id(name), attr("onclick", "$salix.registerAlien(\'<name>\', chartpatch);"), () {
+    div(class("salix-alien"), id(name), style(("width": width, "height": height)) 
+      , attr("onclick", "$salix.registerAlien(\'<name>\', chartpatch);"), () {
         script(src("https://cdn.jsdelivr.net/npm/chart.js@4.1.1/dist/chart.umd.min.js"));
         script("function chartpatch(patch) {
                '  console.log(\'patching chart \' + JSON.stringify(patch, null, 3));
@@ -45,7 +47,7 @@ void charts(str name, Chart c, Attr event=null(), str width="min(75%,800px)", st
                '    $chart_<name>.update(); 
                '  }
                '}");
-        canvas(style(("width": width, "height": height)), id("chart_" + name));
+        canvas(id("chart_" + name));
     });
   });
 }
