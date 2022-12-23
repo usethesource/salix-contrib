@@ -8,6 +8,7 @@ import salix::HTML;
 import salix::Index;
 
 import Set;
+import IO;
 import util::Math;
 
 alias Model = rel[str, str];
@@ -20,7 +21,10 @@ SalixApp[Model] cytoApp(str id = "alien")
 App[Model] cytoWebApp()
   = webApp(cytoApp(), |project://salix/src/main/rascal|);
 
-data Msg = changeIt();
+data Msg 
+  = changeIt()
+  | myTap(str n)
+  ;
 
 Model update(Msg msg, Model m) {
   switch (msg) {
@@ -29,6 +33,8 @@ Model update(Msg msg, Model m) {
       tuple[str,str] edge = toList(m)[i];
       m += {<edge[1], "a<i>">};
     }
+    case myTap(str n):
+      println("Node tap: <n>");
   }
   return m;
 }
@@ -36,6 +42,6 @@ Model update(Msg msg, Model m) {
 
 void view(Model m) {
   h2("Alien elements in Salix");
-  cyto("mygraph", m);
+  cyto("mygraph", m, event=onNodeClick(myTap));
   button(onClick(changeIt()), "Change it");
 }

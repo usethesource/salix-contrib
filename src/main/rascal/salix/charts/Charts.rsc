@@ -15,12 +15,6 @@ Hnd targetValues(Msg(value,value) vals2msg) = handler("targetValues", encode(val
 // removing/adding the event handler dynamically 
 // (e.g. based on some flag in the model) won't work.
 void charts(str name, Chart c, Attr event=null(), str width="600px", str height="400px") {
-  if (!(event is null)) {
-    if (event.name != "clickChart") {
-      throw "Only onClickChart is supported as event for charts";
-    }
-  }
-
   withExtra(("chart": c), () {
     div(class("salix-alien"), id(name), style(("width": width, "height": height)) 
       , attr("onclick", "$salix.registerAlien(\'<name>\', $chartpatch_<name>);"), () {

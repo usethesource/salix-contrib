@@ -14,10 +14,13 @@ import salix::Node;
 import salix::Core;
 import salix::Index;
 
+import lang::json::IO;
+
+Attr onNodeClick(Msg(str) f) = event("nodeClick", targetValue(f));
 
 str initCode(str key) = 
     "var cy_<key> = cytoscape({container: document.getElementById(\'cyto_<key>\')});
-    '$salix.registerAlien(\'<key>\', edits =\> cytopatch(cy_<key>, edits)); 
+    '$salix.registerAlien(\'<key>\', edits =\> $cytopatch_<key>(cy_<key>, edits)); 
     '";
 
 @doc{
@@ -36,11 +39,11 @@ The example here puts all JS inline, but this code can also be in a separate JS 
 If multiple aliens of the same type co-exist in the same page, pass the script loading to withIndex
 to have a single script load for multiple alien elements.
 }
-void cyto(str name, rel[str, str] graph, str width="200px", str height="200px", str \layout="random") {
+void cyto(str name, rel[str, str] graph, Attr event=null(), str width="200px", str height="200px", str \layout="random") {
   withExtra(("graph": graph), () {
     div(class("salix-alien"), id(name), attr("onclick", initCode(name)), () {
         script(src("https://cdn.jsdelivr.net/npm/cytoscape@3.23.0/dist/cytoscape.umd.js"));
-        script("function cytopatch(cy, patch) {
+        script("function $cytopatch_<name>(cy, patch) {
                '  console.log(\'patching cyto \' + JSON.stringify(patch.edits));
                '  var g = {elements: []};
                '  for (let i = 0; i \< patch.edits[0].extra.length; i++) {
@@ -53,6 +56,10 @@ void cyto(str name, rel[str, str] graph, str width="200px", str height="200px", 
                '  g.style = [{selector: \'node\', style: {label: \'data(id)\'}}];
                '  console.log(JSON.stringify(g));
                '  cy.json(g);
+               '  cy.on(\'click\', \'node\', function(evt){
+               '     let node = evt.target;
+               '     $salix.send(<asJSON(event.handler)>, {target: {value: node.id()}});
+               '  });
                '  cy.layout({name: \'<\layout>\'}).run();
                '}");
         div(style(("width": width, "height": height)), id("cyto_" + name));
