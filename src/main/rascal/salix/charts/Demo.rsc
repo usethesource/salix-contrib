@@ -8,6 +8,7 @@ import salix::Index;
 
 import salix::charts::Charts;
 import util::Math;
+import IO;
 
 
 SalixApp[Model] chartApp(str id = "charts") 
@@ -20,11 +21,16 @@ alias Model = ChartData;
 
 Model init() = demoData();
 
-data Msg = doIt();
+data Msg 
+  = doIt()
+  | myClick(value v1, value v2)
+  ;
 
 Model update(Msg msg, Model m) {
     switch (msg) {
         case doIt(): m = demoData(n=arbInt(20));
+        case myClick(value v1, value v2):
+          println("v1 = <v1>, v2 = <v2>");
     }
     return m;
 }
@@ -60,5 +66,5 @@ Chart demoChart(ChartData theData, ChartType \type=\bar(), str title="Chart", Ch
 void view(Model m) {
     h2("Charts demo");
     button(onClick(doIt()), "Do it");
-    charts("mychart", demoChart(m));
+    charts("mychart", demoChart(m), event=onClickChart(myClick));
 }
