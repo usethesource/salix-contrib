@@ -23,22 +23,6 @@ str initCode(str key) =
     '$salix.registerAlien(\'<key>\', edits =\> $cytopatch_<key>(cy_<key>, edits)); 
     '";
 
-@doc{
-The contract for an "alien" element is as follows:
-- it should have class "salix-alien"
-- it should have an unique id 
-- it should have an onclick event handler specified as a raw attribute, which:
-     - runs any init code required for any loaded JS etc. via script tags
-     - registers itself, via `$salix.registerAlien(<id>, edits => ...)` (see `initCode` above)
-       (where the closure receives the "patch" to be able to deal with changes)
-  the event is programmatically triggered in the Salix bootstrap phase
-  after all content has been loaded; after that, the handler is removed.
-- events handled in the alien element should rerouted to salix to create messages.
-
-The example here puts all JS inline, but this code can also be in a separate JS file.
-If multiple aliens of the same type co-exist in the same page, pass the script loading to withIndex
-to have a single script load for multiple alien elements.
-}
 void cyto(str name, rel[str, str] graph, Attr event=null(), str width="200px", str height="200px", str \layout="random") {
   withExtra(("graph": graph), () {
     div(class("salix-alien"), id(name), attr("onclick", initCode(name)), () {
