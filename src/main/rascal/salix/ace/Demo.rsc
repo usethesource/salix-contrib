@@ -7,7 +7,7 @@ import salix::Core;
 import salix::HTML;
 import salix::Index;
 
-import Set;
+import String;
 import IO;
 import util::Math;
 
@@ -23,18 +23,16 @@ App[Model] aceWebApp()
 
 data Msg 
   = changeIt()
-  | myTap(str n)
+  | textUpdated()
   ;
 
 Model update(Msg msg, Model m) {
   switch (msg) {
     case changeIt(): {
       int i = arbInt(size(m));
-      tuple[str,str] edge = toList(m)[i];
-      m += {<edge[1], "a<i>">};
+      m += "\nvar x = <i>;";
+      do(aceSetText("myAce", textUpdated(), m));
     }
-    case myTap(str n):
-      println("Node tap: <n>");
   }
   return m;
 }

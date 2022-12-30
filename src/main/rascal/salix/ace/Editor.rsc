@@ -26,12 +26,18 @@ str initCode(str name, str theme, str mode)
   = "var <name>$editor = ace.edit(\'<name>_editor\');
     '<name>$editor.setTheme(\'<theme>\');
     '<name>$editor.session.setMode(\'<mode>\');
-    '$salix.registerAlien(\'<name>\', p =\> <name>$acepatch(<name>$editor, p)); ";
+    '$salix.registerAlien(\'<name>\', p =\> <name>$acepatch(<name>$editor, p), {aceSetText_<name>: args =\> {<name>$editor.setValue(args.code); return {type: \'nothing\'};}});";
 
+
+
+Cmd aceSetText(str name, Msg msg, str code)
+  = command("aceSetText_<name>", encode(msg), args = ("code": code));
+
+
+// delta = {"start":{"row":0,"column":34},"end":{"row":1,"column":0},"action":"insert","lines":["",""],"id":1}
 
 void ace(str name, str code="", str theme="ace/theme/monokai", str mode="ace/mode/javascript",
-  AceAddons modes=ACE_MODES,
-  AceAddons themes=ACE_THEMES
+  AceAddons modes=ACE_MODES, AceAddons themes=ACE_THEMES, str width="600px", str height="400px"
   ) {
     
     div(class("salix-alien"), id(name), attr("onClick", initCode(name, theme, mode)), () {
@@ -39,12 +45,25 @@ void ace(str name, str code="", str theme="ace/theme/monokai", str mode="ace/mod
         script(src(modes[mode].src), integrity(modes[mode].integrity), crossorigin("anonymous"), referrerpolicy("no-referrer"));
         script(src(themes[theme].src), integrity(themes[theme].integrity), crossorigin("anonymous"), referrerpolicy("no-referrer"));
         script("function <name>$acepatch(editor, patch) {
-               '  // todo
+               '  console.log(JSON.stringify(patch));
+               '  editor.session.on(\'change\', function (delta) {
+               '     console.log(JSON.stringify(delta));
+               '  });
                '}
                '");
-        div(style(("position": "absolute", "top": "0", "right": "0", "bottom": "0", "left": "0")),
+        //("position": "absolute", "top": "0", "right": "0", "bottom": "0", "left": "0", 
+        div(style(("width": width, "height": height)),
           id("<name>_editor"), code);
     });
 
 }
 
+/*
+if (patch.patches[0] && patch.patches[0].patches[0]) {
+               '    let x = patch.patches[0].patches[0].edits[0].contents;
+               '    editor.setValue(x);
+               '  }
+               '  else {
+               '    console.log(\'No text change\');
+               '  }
+               */
