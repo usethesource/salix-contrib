@@ -30,11 +30,23 @@ str initCode(str name, str theme, str mode)
 
 
 
+// TODO: make Msg(str) the type, to give back the name of the editor.
 Cmd aceSetText(str name, Msg msg, str code)
   = command("aceSetText_<name>", encode(msg), args = ("code": code));
 
 
 // delta = {"start":{"row":0,"column":34},"end":{"row":1,"column":0},"action":"insert","lines":["",""],"id":1}
+// action can be insert/remove 
+
+Attr onAceChange(Msg(int,int,int,int,str,list[str]) f)
+  = event("aceChange", aceDelta(f));
+
+Hnd aceDelta(Msg(int,int,int,int,str,list[str]) delta2msg) = handler("aceDelta", encode(delta2msg));
+
+Msg parseMsg("aceDelta", Handle h, map[str,str] p) 
+  = applyMaps(h, decode(h, #Msg(int,int,int,int,str,list[str]))(p["srow"], p["scol"], p["erow"], p["ecol"], p["action"], p["lines"]));
+
+
 
 void ace(str name, str code="", str theme="ace/theme/monokai", str mode="ace/mode/javascript",
   AceAddons modes=ACE_MODES, AceAddons themes=ACE_THEMES, str width="600px", str height="400px"
