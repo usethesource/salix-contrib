@@ -28,7 +28,7 @@ str initCode(str name, str theme, str mode)
     '<name>$editor.setTheme(\'<theme>\');
     '<name>$editor.session.setMode(\'<mode>\');
     '<name>$aceInit(<name>$editor);
-    '$salix.registerAlien(\'<name>\', p =\> <name>$acepatch(<name>$editor, p), {aceSetText_<name>: args =\> {<name>$editor.setValue(args.code); return {type: \'nothing\'};}});";
+    '$salix.registerAlien(\'<name>\', p =\> <name>$acePatch(<name>$editor, p), {aceSetText_<name>: args =\> {<name>$editor.setValue(args.code); return {type: \'nothing\'};}});";
 
 
 
@@ -66,7 +66,7 @@ void ace(str name, str code="", Attr event = null(), str theme="ace/theme/monoka
                '  });
                '  <}>
                '}
-               'function <name>$acepatch(editor, patch) {
+               'function <name>$acePatch(editor, patch) {
                '  console.log(JSON.stringify(patch));
                '}
                '");
