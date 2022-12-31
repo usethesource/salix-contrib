@@ -28,7 +28,12 @@ str initCode(str name, str theme, str mode)
     '<name>$editor.setTheme(\'<theme>\');
     '<name>$editor.session.setMode(\'<mode>\');
     '<name>$aceInit(<name>$editor);
-    '$salix.registerAlien(\'<name>\', p =\> <name>$acePatch(<name>$editor, p), {aceSetText_<name>: args =\> {<name>$editor.setValue(args.code); return {type: \'nothing\'};}});";
+    '$salix.registerAlien(\'<name>\', p =\> <name>$acePatch(<name>$editor, p), {aceSetText_<name>: args =\> {
+    '   <name>$fromAceSetValue = true;
+    '   <name>$editor.setValue(args.code); 
+    '   <name>$fromAceSetValue = false;
+    '   return {type: \'nothing\'};
+    }});";
 
 
 
@@ -36,15 +41,6 @@ str initCode(str name, str theme, str mode)
 Cmd aceSetText(str name, Msg msg, str code)
   = command("aceSetText_<name>", encode(msg), args = ("code": code));
 
-
-// delta = {"start":{"row":0,"column":34},"end":{"row":1,"column":0},"action":"insert","lines":["",""],"id":1}
-// action can be insert/remove 
-
-
-// data AceDelta
-//   = aceDelta(AceCoord \start, AceCoord \end, str action, list[str] lines, int id = -1);
-
-// data AceCoord = aceCoord(int row, int column);
 
 Attr onAceChange(Msg(map[str,value]) f)
   = event("aceChange", jsonPayload(f));
@@ -61,28 +57,19 @@ void ace(str name, str code="", Attr event = null(), str theme="ace/theme/monoka
         script("function <name>$aceInit(editor) {
                '  <if (event has name, event.name == "aceChange") {>
                '  editor.session.on(\'change\', function (delta) {
-               '     console.log(JSON.stringify(delta));
-               '     $salix.send(<asJSON(event.handler)>, delta);
+               '        if (!<name>$fromAceSetValue) {
+               '            $salix.send(<asJSON(event.handler)>, delta);
+               '        }
                '  });
                '  <}>
                '}
                'function <name>$acePatch(editor, patch) {
                '  console.log(JSON.stringify(patch));
                '}
+               'window.<name>$fromAceSetValue = false;
                '");
-        //("position": "absolute", "top": "0", "right": "0", "bottom": "0", "left": "0", 
         div(style(("width": width, "height": height)),
           id("<name>_editor"), code);
     });
 
 }
-
-/*
-if (patch.patches[0] && patch.patches[0].patches[0]) {
-               '    let x = patch.patches[0].patches[0].edits[0].contents;
-               '    editor.setValue(x);
-               '  }
-               '  else {
-               '    console.log(\'No text change\');
-               '  }
-               */
