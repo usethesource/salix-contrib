@@ -4,6 +4,7 @@ import salix::HTML;
 import salix::Node;
 import salix::Core;
 
+import lang::json::IO;
 
 private str ACE_SRC = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.js";
 private str ACE_INTEGRITY = "sha512-WYlXqL7GPpZL2ImDErTX0RMKy5hR17vGW5yY04p9Z+YhYFJcUUFRT31N29euNB4sLNNf/s0XQXZfzg3uKSoOdA==";
@@ -26,6 +27,7 @@ str initCode(str name, str theme, str mode)
   = "var <name>$editor = ace.edit(\'<name>_editor\');
     '<name>$editor.setTheme(\'<theme>\');
     '<name>$editor.session.setMode(\'<mode>\');
+    '<name>$aceInit(<name>$editor);
     '$salix.registerAlien(\'<name>\', p =\> <name>$acepatch(<name>$editor, p), {aceSetText_<name>: args =\> {<name>$editor.setValue(args.code); return {type: \'nothing\'};}});";
 
 
@@ -38,17 +40,17 @@ Cmd aceSetText(str name, Msg msg, str code)
 // delta = {"start":{"row":0,"column":34},"end":{"row":1,"column":0},"action":"insert","lines":["",""],"id":1}
 // action can be insert/remove 
 
-Attr onAceChange(Msg(int,int,int,int,str,list[str]) f)
-  = event("aceChange", aceDelta(f));
 
-Hnd aceDelta(Msg(int,int,int,int,str,list[str]) delta2msg) = handler("aceDelta", encode(delta2msg));
+// data AceDelta
+//   = aceDelta(AceCoord \start, AceCoord \end, str action, list[str] lines, int id = -1);
 
-Msg parseMsg("aceDelta", Handle h, map[str,str] p) 
-  = applyMaps(h, decode(h, #Msg(int,int,int,int,str,list[str]))(p["srow"], p["scol"], p["erow"], p["ecol"], p["action"], p["lines"]));
+// data AceCoord = aceCoord(int row, int column);
+
+Attr onAceChange(Msg(map[str,value]) f)
+  = event("aceChange", jsonPayload(f));
 
 
-
-void ace(str name, str code="", str theme="ace/theme/monokai", str mode="ace/mode/javascript",
+void ace(str name, str code="", Attr event = null(), str theme="ace/theme/monokai", str mode="ace/mode/javascript",
   AceAddons modes=ACE_MODES, AceAddons themes=ACE_THEMES, str width="600px", str height="400px"
   ) {
     
@@ -56,11 +58,16 @@ void ace(str name, str code="", str theme="ace/theme/monokai", str mode="ace/mod
         script(src(ACE_SRC), \type("text/javascript"), integrity(ACE_INTEGRITY), crossorigin("anonymous"), referrerpolicy("no-referrer"));
         script(src(modes[mode].src), integrity(modes[mode].integrity), crossorigin("anonymous"), referrerpolicy("no-referrer"));
         script(src(themes[theme].src), integrity(themes[theme].integrity), crossorigin("anonymous"), referrerpolicy("no-referrer"));
-        script("function <name>$acepatch(editor, patch) {
-               '  console.log(JSON.stringify(patch));
+        script("function <name>$aceInit(editor) {
+               '  <if (event has name, event.name == "aceChange") {>
                '  editor.session.on(\'change\', function (delta) {
                '     console.log(JSON.stringify(delta));
+               '     $salix.send(<asJSON(event.handler)>, delta);
                '  });
+               '  <}>
+               '}
+               'function <name>$acepatch(editor, patch) {
+               '  console.log(JSON.stringify(patch));
                '}
                '");
         //("position": "absolute", "top": "0", "right": "0", "bottom": "0", "left": "0", 

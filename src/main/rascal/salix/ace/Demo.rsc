@@ -24,6 +24,7 @@ App[Model] aceWebApp()
 data Msg 
   = changeIt()
   | textUpdated()
+  | editorChange(map[str,value] delta)
   ;
 
 Model update(Msg msg, Model m) {
@@ -33,6 +34,8 @@ Model update(Msg msg, Model m) {
       m += "\nvar x = <i>;";
       do(aceSetText("myAce", textUpdated(), m));
     }
+    case editorChange(map[str,value] delta):
+      println("editor change");
   }
   return m;
 }
@@ -40,6 +43,6 @@ Model update(Msg msg, Model m) {
 
 void view(Model m) {
   h2("Ace elements in Salix");
-  ace("myAce", code = m);
+  ace("myAce", event=onAceChange(editorChange), code = m);
   button(onClick(changeIt()), "Change it");
 }
