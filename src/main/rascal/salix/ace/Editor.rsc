@@ -4,7 +4,10 @@ import salix::HTML;
 import salix::Node;
 import salix::Core;
 
+import salix::util::Mode;
+
 import lang::json::IO;
+import util::Maybe;
 
 private str ACE_SRC = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.js";
 private str ACE_INTEGRITY = "sha512-WYlXqL7GPpZL2ImDErTX0RMKy5hR17vGW5yY04p9Z+YhYFJcUUFRT31N29euNB4sLNNf/s0XQXZfzg3uKSoOdA==";
@@ -47,6 +50,7 @@ Attr onAceChange(Msg(map[str,value]) f)
 
 
 void ace(str name, str code="", Attr event = null(), str theme="ace/theme/monokai", str mode="ace/mode/javascript",
+  Maybe[Mode] modeDefinition = nothing(),
   AceAddons modes=ACE_MODES, AceAddons themes=ACE_THEMES, str width="600px", str height="400px"
   ) {
     
