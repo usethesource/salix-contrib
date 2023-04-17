@@ -14,22 +14,38 @@ alias E = void(str from, str to, map[str,str] props);
 
 alias B = void(N, E);
 
+/*
+
+patch (degrades to init):
+
+ids = [];
+for (elt in shadowdiv with class <name>_jsplumb_node) {
+    if js_plumb_div has element X with id == elt.id {
+        update contents of X with contents of elt
+    }
+    else {
+        copy into jsplumb_div;
+        jsplumb.manage(copyOfElt)
+    }
+    ids += [elt.id]
+}
+for (elt in jsplumbdiv, with id notin ids) {
+    jsplumb.unmanage(elt); // ??
+    remove from jsplumbdiv;
+}
+
+for (elt in shadowdiv with class <name>_jsplumb_edge) {
+    src = getElementById(elt.fromNode)
+    trg = getElementById(elt.toNode)
+    cons = jsplumb.getConnections(src, trg);
+}
+
+
+*/
+
+
 str initCode(str name)
-  = "var <name>$jsPlumb = jsPlumbBrowserUI.newInstance({container: document.getElementById(\'<name>_jsplumb_div\')});
-    'function <name>$jsPlumbPatch(jsPlumb, patch) {
-    '  // todo    
-    '}
-    '<name>$jsPlumb.batch(() =\> {
-    '   for (const elt of document.getElementsByClassName(\'<name>_jsplumb_node\')) {
-    '       <name>$jsPlumb.manage(elt);
-    '   }
-    '   for (const elt of document.getElementsByClassName(\'<name>_jsplumb_edge\')) {
-    '       <name>$jsPlumb.connect({source: document.getElementById(elt.getAttribute(\'fromNode\')), 
-    '                              target: document.getElementById(elt.getAttribute(\'toNode\')),
-    '                               connector: \'Straight\'});
-    '   }
-    '});
-    '$salix.registerAlien(\'<name>\', p =\> <name>$jsPlumbPatch(<name>$jsPlumb, p));";
+  = "<name>$jsPlumbInit(); $salix.registerAlien(\'<name>\', p =\> <name>$jsPlumbPatch(<name>$jsPlumb, p));";
 
 
 void jsplumb(str name, B block, str width="600px", str height="400xpx") {
@@ -46,8 +62,53 @@ void jsplumb(str name, B block, str width="600px", str height="400xpx") {
     div(class("salix-alien"), id(name), attr("onClick", initCode(name)), () {
         script(src(JSPLUMB_SRC), \type("text/javascript"), integrity(JSPLUMB_INTEGRITY), crossorigin("anonymous"), referrerpolicy("no-referrer"));
 
-        div(id("<name>_jsplumb_div"), style(("position": "relative", "width": width, "height": height)), () {
+        div(style(("display": "none")), id("<name>_shadow_div"), () {
             block(drawNode, drawEdge);
         });
+
+        div(id("<name>_jsplumb_div"), style(("position": "relative", "width": width, "height": height)));
+
+        script(
+            "<name>$jsPlumb = jsPlumbBrowserUI.newInstance({container: document.getElementById(\'<name>_jsplumb_div\')});
+            'function <name>$jsPlumbPatch(jsPlumb, patch) {
+            '  console.log(JSON.stringify(patch, null, 4));
+            '  const shadow = document.getElementById(\'<name>_shadow_div\');
+            '  const real = document.getElementById(\'<name>_jsplumb_div\');
+            '  $salix.patchDOM(shadow, patch.patches[0], $salix.appender(shadow));
+            '  // and now: for all nodes in shadow: update innerHTML of real div (to not mess up positions) if they exist
+            '  // also set the event handlers (first remove all in real div, than set again)
+            '  // for all new nodes do what init does (events copy over automatically)
+            '  // for all removed nodes, remove from real div
+            '  // and for all edges that are new (how to determine?) create connections
+            '  // for existing edges update properties.
+            '  // for edges that are removed (how to determine?) unconnect the edges.
+            '}
+            'function <name>$jsPlumbInit() {
+            '   const shadow = document.getElementById(\'<name>_shadow_div\');
+            '   const real = document.getElementById(\'<name>_jsplumb_div\');
+            '   const kids = shadow.children;
+            '   const copied = {};
+            '   <name>$jsPlumb.batch(() =\> {
+            '       for (let i = 0; i \< kids.length; i++) {
+            '           const kid = kids[i];
+            '           if (kid.className === \'<name>_jsplumb_node\') {
+            '               const n = kid.cloneNode(true);
+            '               real.appendChild(n); 
+            '               <name>$jsPlumb.manage(n);
+            '               copied[n.id] = n;
+            '           }
+            '       }
+            '       for (let i = 0; i \< kids.length; i++) {
+            '           const kid = kids[i];
+            '           const from = copied[kid.getAttribute(\'fromNode\')];
+            '           const to = copied[kid.getAttribute(\'toNode\')];
+            '           if (kid.className === \'<name>_jsplumb_edge\') {
+            '               <name>$jsPlumb.connect({source: from, target: to, connector: \'Straight\'});
+            '           }
+            '       }
+            '   });
+            '}"
+        );
+
     });
 }
