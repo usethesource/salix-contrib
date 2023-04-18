@@ -59,6 +59,7 @@ void view(Model m) {
             drawNode("c", () {
                 span("BOOOM");
             });
+            drawEdge("b", "c", ());
         }
 
         drawEdge("a", "b", ());

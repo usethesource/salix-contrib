@@ -73,9 +73,51 @@ void jsplumb(str name, B block, str width="600px", str height="400xpx") {
             'function <name>$jsPlumbPatch(jsPlumb, patch) {
             '  console.log(JSON.stringify(patch, null, 4));
             '  const shadow = document.getElementById(\'<name>_shadow_div\');
-            '  const real = document.getElementById(\'<name>_jsplumb_div\');
             '  $salix.patchDOM(shadow, patch.patches[0], $salix.appender(shadow));
-            '  // and now: for all nodes in shadow: update innerHTML of real div (to not mess up positions) if they exist
+            '  const real = document.getElementById(\'<name>_jsplumb_div\');
+            '  const kids = shadow.children;
+            '  const copied = {};
+            '  for (let i = 0; i \< kids.length; i++) {
+            '       const kid = kids[i];
+            '       if (kid.className === \'<name>_jsplumb_node\') {
+            '           const realKid = real.querySelector(\'#\' + kid.id);
+            '           if (realKid) {
+            '               realKid.replaceChildren(); // delete kids; let\'s hope we don\'t see this
+            '               for (let j = 0; j \< kid.children.length; j++) {
+            '                   // are event handlers cloned as well?
+            '                   realKid.appendChild(kid.children[j].cloneNode(true));    
+            '               }
+            '               copied[realKid.id] = realKid;
+            '           }
+            '           else { // it is a new node, do as init
+            '               const n = kid.cloneNode(true);
+            '               real.appendChild(n); 
+            '               <name>$jsPlumb.manage(n);
+            '               copied[n.id] = n;
+            '            }
+            '       }
+            '  }
+            '  // remove removed nodes; NB: real does not contain edge elements
+            '  for (let i = 0; i \< real.children.length; i++) {
+            '       if (!Object.getOwnPropertyNames(copied).includes(real.children[i].id)) {
+            '           real.removeChild(real.children[i]);
+            '           i--;   
+            '       }     
+            '  }
+            '  for (let i = 0; i \< kids.length; i++) {
+            '       const kid = kids[i];
+            '       if (kid.className === \'<name>_jsplumb_edge\') {
+            '           const from = copied[kid.getAttribute(\'fromNode\')];
+            '           const to = copied[kid.getAttribute(\'toNode\')];
+            '           if (false) {
+            '                
+            '           }
+            '           else { 
+            '               <name>$jsPlumb.connect({source: from, target: to, connector: \'Straight\'});
+            '            }
+            '       }
+            '  }
+            '  // and now: for all nodes in shadow: update innerHTML (to not mess up positions) of corresponding element in real div  if they exist
             '  // also set the event handlers (first remove all in real div, than set again)
             '  // for all new nodes do what init does (events copy over automatically)
             '  // for all removed nodes, remove from real div
