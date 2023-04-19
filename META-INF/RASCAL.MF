@@ -3,4 +3,3 @@ Project-Name: salix-contrib
 Source: src/main/rascal
 Require-Libraries: |lib://salix-core|
 
-    

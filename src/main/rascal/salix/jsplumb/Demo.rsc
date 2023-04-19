@@ -43,15 +43,15 @@ void view(Model m) {
 
         drawNode("a", () {
             div(style(("border": "solid")), () {
-                span("Node A");
-                button("click me");
+                span("Node A <m.toggle>");
+                button(onClick(doIt()), "click me");
             });
         });
 
         drawNode("b", () {
             div(style(("border": "solid")), () {
-                span("Node B");
-                button("click me");
+                span("Node B <m.toggle>");
+                button(onClick(doIt()), "click me");
             });
         });
 
