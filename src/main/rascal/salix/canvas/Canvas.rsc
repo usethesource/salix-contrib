@@ -46,11 +46,11 @@ alias GC = tuple[
 
     void() beginPath,
     void(CanvasFillRule /* fillRule */) fill,
-    void(Path2D /* path */, CanvasFillRule /* fillRule */) fill,
+    void(Path2D /* path */, CanvasFillRule /* fillRule */) fillPath,
     void() stroke,
-    void(Path2D /* path */) stroke,
+    void(Path2D /* path */) strokePath,
     void(CanvasFillRule /* fillRule */) clip,
-    void(Path2D path, CanvasFillRule /* fillRule */) clip,
+    void(Path2D /* path */, CanvasFillRule /* fillRule */) clipPath,
 
     void(str /* text */, num /* x */, num /* y */, num /* maxWidth */) fillText,
     void(str /* text */, num /* x */, num /* y */, num /* maxWidth */) strokeText,
@@ -67,7 +67,7 @@ alias GC = tuple[
     void(num /* x1 */, num /* y1 */, num /* x2 */, num /* y2 */, num /* radius */) arcTo, 
     void(num /* x */, num /* y */, num /* w */, num /* h */) rect,
     void(num /* x */, num /* y */, num /* w */, num /* h */, list[num] /* radii */) roundRect,
-    void(num /* x */, num /* y */, num /* radius */, num /* startAngle */, num /* endAngle */, bool counterclockwise) arc, 
+    void(num /* x */, num /* y */, num /* radius */, num /* startAngle */, num /* endAngle */, bool /* counterclockwise */) arc, 
     void(num /* x */, num /* y */, num /* radiusX */, num /* radiusY */, num /* rotation */, num /* startAngle */, num /* endAngle */, bool /* counterclockwise */) ellipse, 
 
 
@@ -120,7 +120,7 @@ void myCanvas(str name, int w, int h, void(GC) block) {
     (num x, num y) /* translate */ { line("<ctx>."); },
     (num a, num b, num c, num d, num e, num f) /* transform */ { line("<ctx>."); },
     (num x, num y, num w, num h) /* clearRect */ { line("<ctx>."); },
-    (num x, num y, num w, num h) /* fillRect */ { line("<ctx>."); },
+    (num x, num y, num w, num h) /* fillRect */ { line("<ctx>.fillRect(<x>, <y>, <w>, <h>);"); },
     (num x, num y, num w, num h) /* strokeRect */ { line("<ctx>."); },
 
     () /* beginPath */ { line("<ctx>."); },
@@ -156,7 +156,7 @@ void myCanvas(str name, int w, int h, void(GC) block) {
     (bool val) /* imageSmoothingEnabled */ { line("<ctx>."); }, // (default true)
     (ImageSmoothingQuality val) /* imageSmoothingQuality */ { line("<ctx>."); }, // (default low)
     (str val) /* strokeStyle */ { line("<ctx>."); }, // (default black)
-    (str val) /* fillStyle */ { line("<ctx>."); }, // (default black)
+    (str val) /* fillStyle */ { line("<ctx>.fillStyle = \'<val>\';"); }, // (default black)
     (num val) /* shadowOffsetX */ { line("<ctx>."); }, // (default 0)
     (num val) /* shadowOffsetY */ { line("<ctx>."); }, // (default 0)
     (num val) /* shadowBlur */ { line("<ctx>."); }, // (default 0)
