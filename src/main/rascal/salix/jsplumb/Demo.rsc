@@ -37,8 +37,6 @@ void view(Model m) {
     h2("JSPlumb demo");
     button(onClick(doIt()), "Do it");
 
-    //void jsplumb(str name, B block, str width="600px", str height="400xpx") {
-
     jsplumb("demo", (N drawNode, E drawEdge) {
 
         drawNode("a", () {
@@ -59,9 +57,9 @@ void view(Model m) {
             drawNode("c", () {
                 span("BOOOM");
             });
-            drawEdge("b", "c", ());
+            drawEdge("b", "c");
         }
 
-        drawEdge("a", "b", ());
+        drawEdge("a", "b");
     });
 }

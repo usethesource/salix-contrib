@@ -5,12 +5,16 @@ import salix::Node;
 import salix::Core;
 
 
+import Node;
+import lang::json::IO;
+import String;
+
 private str JSPLUMB_SRC = "https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/5.13.6/jsplumb.bundle.js";
 private str JSPLUMB_INTEGRITY = "sha512-i2NtWYs2gs+Olnv5DZ5ax2rXhIlhDYxjdnzfufYzE8MBRUEte/mtGYU8P31Aya3+aVJuKlVaYOjywE9iIOuYBQ==";
 
 alias N = void(str id, void() block);
 
-alias E = void(str from, str to, map[str,str] props);
+alias E = void(str from, str to);
 
 alias B = void(N, E);
 
@@ -44,24 +48,57 @@ for (elt in shadowdiv with class <name>_jsplumb_edge) {
 */
 
 
+Attr node2attr(node n) = attr(getName(n), asJSON(getKeywordParameters(n)));
+
+//https://docs.jsplumbtoolkit.com/community/apidocs/browser-ui.connectorspec
+data Connector
+  = straight(int stub = 0, int gap = 0)
+  | bezier(int curviness = 150)
+  | flowchart(int stub = 30, bool alwaysRespectStub = false, int gap = 0, real midpoint = 0.5, int cornerRadius = 0)
+  | stateMachine(int margin = 5, int curviness = 10, int proximityLimit = 80)
+  ;
+
+// https://docs.jsplumbtoolkit.com/community/lib/anchors
+data Anchor
+  = top() | topRight() | right() | bottomRight() | bottom() | bottomLeft() | left() | topLeft() | center()
+  | autoDefault()
+  | perimeter(Shape shape, int anchorCount = 60, int rotation = 0)
+  | continuous(list[Face] faces = [salix::jsplumb::JSPlumb::Face::top(), 
+        salix::jsplumb::JSPlumb::Face::left(), 
+        salix::jsplumb::JSPlumb::Face::right(), 
+        salix::jsplumb::JSPlumb::Face::bottom()]) 
+  ;
+
+data Shape
+  = circle() | ellipse() | triangle() | diamond() | rectangle() | square();
+
+data Face = top() | left() | right() | bottom();
+
+//https://docs.jsplumbtoolkit.com/community/lib/endpoints
+data Endpoint
+  = dot(int radius = 5, str cssClass = "", str hoverClass = "")
+  | rectangle(int width = 20, int height = 20, str cssClass = "", str hoverClass = "")
+  | blank()
+  ;
+
+
 str initCode(str name)
   = "<name>$jsPlumbInit(); $salix.registerAlien(\'<name>\', <name>$jsPlumbPatch);";
 
 
+// TODO: don't use id for node-id, because they should be global in a page. 
+
 void jsplumb(str name, B block, str width="600px", str height="400xpx") {
-    
-    map[str, void()] nodes = ();
-    map[tuple[str,str], map[str, str]] edges = ();
-    
     void drawNode(str myid, void() block) {
         // NB: the position:absolute is required by jsPlumb
-        //div(id(myid), style(("position": "absolute")), class("<name>_jsplumb_node"), block);
-        nodes[myid] = block;
+        div(id(myid), style(("position": "absolute")), class("<name>_jsplumb_node"), block);
     }
 
-    void drawEdge(str from, str to, map[str,str] props) {
-        //span(style(("display": "none")), class("<name>_jsplumb_edge"), attr("fromNode", from), attr("toNode", to));
-        edges[<from, to>] = props;
+    void drawEdge(str from, str to, Connector connector = straight(), Anchor anchor = autoDefault()) {
+        span(style(("display": "none")), class("<name>_jsplumb_edge")
+            , attr("fromNode", from), attr("toNode", to)
+            , attr("connector", escape(asJSON(connector), ("\"": "&quot;")))
+            , attr("anchor", escape(asJSON(anchor), ("\"": "&quot;"))));
     }
 
     div(class("salix-alien"), id(name), attr("onClick", initCode(name)), () {
@@ -69,12 +106,6 @@ void jsplumb(str name, B block, str width="600px", str height="400xpx") {
 
         div(style(("display": "none")), id("<name>_shadow_div"), () {
             block(drawNode, drawEdge);
-            for (str myid <- nodes) {
-                div(id(myid), style(("position": "absolute")), class("<name>_jsplumb_node"), nodes[myid]);
-            }
-            for (<str from, str to> <- edges) {
-                span(style(("display": "none")), class("<name>_jsplumb_edge"), attr("fromNode", from), attr("toNode", to));
-            }
         });
 
         div(id("<name>_jsplumb_div"), style(("position": "relative", "width": width, "height": height)));
@@ -162,21 +193,16 @@ void jsplumb(str name, B block, str width="600px", str height="400xpx") {
             '       if (kid.classList.contains(\'<name>_jsplumb_edge\')) {
             '           const from = copied[kid.getAttribute(\'fromNode\')];
             '           const to = copied[kid.getAttribute(\'toNode\')];
+            '           const conn = copied[kid.getAttribute(\'connector\')];
             '           if (false) {
             '                
             '           }
             '           else { 
-            '               <name>$jsPlumb.connect({source: from, target: to, connector: \'Straight\'});
+            '               <name>$jsPlumb.connect({source: from, target: to
+            '                   , connector: {type: \'Bezier\', options: {curviness: 50}}});
             '           }
             '       }
             '  }
-            '  // and now: for all nodes in shadow: update innerHTML (to not mess up positions) of corresponding element in real div  if they exist
-            '  // also set the event handlers (first remove all in real div, than set again)
-            '  // for all new nodes do what init does (events copy over automatically)
-            '  // for all removed nodes, remove from real div
-            '  // and for all edges that are new (how to determine?) create connections
-            '  // for existing edges update properties.
-            '  // for edges that are removed (how to determine?) unconnect the edges.
             '}
             'function <name>$jsPlumbInit() {
             '   const shadow = document.getElementById(\'<name>_shadow_div\');
@@ -184,6 +210,15 @@ void jsplumb(str name, B block, str width="600px", str height="400xpx") {
             '   const kids = shadow.children;
             '   const copied = {};
             '   <name>$jsPlumb.batch(() =\> {
+            '   });
+            '}"
+        );
+
+    });
+}
+
+/*
+
             '       for (let i = 0; i \< kids.length; i++) {
             '           const kid = kids[i];
             '           if (kid.classList.contains(\'<name>_jsplumb_node\')) {
@@ -197,13 +232,10 @@ void jsplumb(str name, B block, str width="600px", str height="400xpx") {
             '           const kid = kids[i];
             '           const from = copied[kid.getAttribute(\'fromNode\')];
             '           const to = copied[kid.getAttribute(\'toNode\')];
+            '           const conn = copied[kid.getAttribute(\'connector\')];
             '           if (kid.classList.contains(\'<name>_jsplumb_edge\')) {
-            '               <name>$jsPlumb.connect({source: from, target: to, connector: \'Straight\'});
+            '               <name>$jsPlumb.connect({source: from, target: to, connector: conn});
             '           }
             '       }
-            '   });
-            '}"
-        );
 
-    });
-}
+*/
