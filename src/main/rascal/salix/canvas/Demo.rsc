@@ -24,12 +24,7 @@ data Msg
 Model update(Msg msg, Model m) {
   switch (msg) {
     case flipColor(): {
-        if (m.color == "green") {
-            m.color = "red";
-        }
-        else {
-            m.color = "green";
-        }
+        m.color = m.color == "green" ? "red" : "green";
         m.colors += [m.color];
     }
   }
