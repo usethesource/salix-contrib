@@ -4,6 +4,7 @@ import salix::HTML;
 import salix::Node;
 import salix::Core;
 import List;
+import String;
 import Node;
 
 data PredefinedColorSpace = srgb() | \display-p3(); 
@@ -19,7 +20,37 @@ data CanvasRenderingContext2DSettings = ctxSettings(
 
 alias Path2D = list[Move];
 
-data Move = M(int x, int y) ; // todo: finish
+// https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+data Move(bool r=false)  // r = relative
+  = move(num x, num y)
+  | line(num x, num y)
+  | horizontal(num x)
+  | vertical(num y)
+  | cubic(num x1, num y1, num x2, num y2, num x, num y)
+  | cubic(num x2, num y2, num x, num y) // S
+  | quadratic(num x1, num y1, num x, num y)
+  | quadratic(num x, num y) // T
+  | arc(num rx, num ry, num xrot, num large, num sweep, num x, num y)
+  | close();
+
+str lowerIfRel(Move m, str s) = m.r ? toLowerCase(s) : s;
+
+str move2svg(m:move(num x, num y)) = lowerIfRel(m, "M <x> <y>");
+str move2svg(m:line(num x, num y)) = lowerIfRel(m, "L <x> <y>");
+str move2svg(m:horizontal(num x)) = lowerIfRel(m, "H <x>");
+str move2svg(m:vertical(num y)) = lowerIfRel(m, "V <y>");
+
+str move2svg(m:cubic(num x1, num y1, num x2, num y2, num x, num y)) = lowerIfRel(m, "C <x1> <y1>, <x2> <y2>, <x> <y>");
+str move2svg(m:cubic(num x2, num y2, num x, num y)) = lowerIfRel(m, "S <x2> <y2>, <x> <y>");
+str move2svg(m:quadratic(num x1, num y1, num x, num y)) = lowerIfRel(m, "Q <x1> <y1>, <x> <y>");
+str move2svg(m:quadratic(num x, num y)) = lowerIfRel(m, "T <x> <y>");
+
+str move2svg(m:arc(num rx, num ry, num xrot, num large, num sweep, num x, num y))
+  = lowerIfRel(m, "A <rx> <ry> <xrot> <large> <sweep> <x> <y>");
+
+str move2svg(m:close()) = "Z";
+
+str path2dAsSVG(Path2D p) = intercalate(" ", [ move2svg(m) | Move m <- p ]);
 
 
 data ImageSmoothingQuality = low() | medium() | high();
@@ -134,11 +165,11 @@ void myCanvas(str name, int w, int h, list[Attr] attrs, void(GC) block) {
 
     () /* beginPath */ { line("<ctx>.beginPath();"); },
     (CanvasFillRule fillRule) /* fill */ { line("<ctx>.fill(\'<getName(fillRule)>\');"); },
-    (Path2D path, CanvasFillRule fillRule) /* fill */ { throw "not implemented"; },
+    (Path2D path, CanvasFillRule fillRule) /* fill */ { line("<ctx>.fill(\'<path2dAsSVG(path)>\', \'<getName(fillRule)>\');"); },
     () /* stroke */ { line("<ctx>.stroke()"); },
-    (Path2D path) /* stroke */ { throw "not implemented"; },
+    (Path2D path) /* stroke */ { line("<ctx>.fill(\'<path2dAsSVG(path)>\');"); },
     (CanvasFillRule fillRule) /* clip */ { line("<ctx>.clip(\'<getName(fillRule)>\');"); },
-    (Path2D path, CanvasFillRule fillRule) /* clip */ { throw "not implemented"; },
+    (Path2D path, CanvasFillRule fillRule) /* clip */ { line("<ctx>.clip(\'<path2dAsSVG(path)>\', \'<getName(fillRule)>\');"); },
 
     (str text, num x, num y, num maxWidth) /* fillText */ { line("<ctx>.fillText(\'<text>\', <x>, <y>, <maxWidth>);"); },
     (str text, num x, num y, num maxWidth) /* strokeText */ { line("<ctx>.strokeText(\'<text>\', <x>, <y>, <maxWidth>);"); },
