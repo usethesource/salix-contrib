@@ -7,9 +7,9 @@ import salix::HTML;
 import salix::Core;
 import salix::Index;
 
-alias Model = tuple[str color];
+alias Model = tuple[str color, list[str] colors];
 
-Model init() = <"green">;
+Model init() = <"green", ["green"]>;
 
 SalixApp[Model] canvasApp(str id = "canvasApp") 
   = makeApp(id, init, withIndex("Canvas", id, view), update);
@@ -30,6 +30,7 @@ Model update(Msg msg, Model m) {
         else {
             m.color = "green";
         }
+        m.colors += [m.color];
     }
   }
   return m;
@@ -38,6 +39,11 @@ Model update(Msg msg, Model m) {
 
 void view(Model m) {
   h2("Canvas elements in Salix");
+  ul(() {
+    for (str c <- m.colors) {
+        li(c);
+    }
+  });
   myCanvas("mycanvas", 120, 120, (GC ctx) {
     ctx.fillStyle(m.color);
     ctx.fillRect(10, 10, 100, 100);
