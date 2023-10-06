@@ -7,9 +7,10 @@ import salix::HTML;
 import salix::Core;
 import salix::Index;
 
-alias Model = tuple[str color, list[str] colors];
 
-Model init() = <"green", ["green"]>;
+alias Model = tuple[str color, list[str] colors, MouseXY lastClick];
+
+Model init() = <"green", ["green"], <<0,0>, <0,0>, <0,0>, <0,0>, <0,0>>>;
 
 SalixApp[Model] canvasApp(str id = "canvasApp") 
   = makeApp(id, init, withIndex("Canvas", id, view), update);
@@ -19,6 +20,7 @@ App[Model] canvasWebApp()
 
 data Msg 
   = flipColor()
+  | mouseClick(MouseXY coords)
   ;
 
 Model update(Msg msg, Model m) {
@@ -27,6 +29,9 @@ Model update(Msg msg, Model m) {
         m.color = m.color == "green" ? "red" : "green";
         m.colors += [m.color];
     }
+    case mouseClick(MouseXY xy): {
+        m.lastClick = xy;
+    }
   }
   return m;
 }
@@ -34,12 +39,13 @@ Model update(Msg msg, Model m) {
 
 void view(Model m) {
   h2("Canvas elements in Salix");
+  h3("Last click: <m.lastClick>");
   ul(() {
     for (str c <- m.colors) {
         li(c);
     }
   });
-  myCanvas("mycanvas", 120, 120, (GC ctx) {
+  myCanvas("mycanvas", 120, 120, [onClickXY(mouseClick)], (GC ctx) {
     ctx.fillStyle(m.color);
     ctx.fillRect(10, 10, 100, 100);
   });

@@ -115,7 +115,7 @@ str initCode(str name) =
     '$salix.registerAlien(\'<name>\', $canvas_patch_<name>);";
 
 
-void myCanvas(str name, int w, int h, void(GC) block) {
+void myCanvas(str name, int w, int h, list[Attr] attrs, void(GC) block) {
     str ctx = "$ctx_<name>";
     list[str] lines = ["<ctx> = document.getElementById(\'<name>_canvas\').getContext(\'2d\');"];
 
@@ -209,8 +209,10 @@ void myCanvas(str name, int w, int h, void(GC) block) {
                    '    let alien = document.getElementById(\'<name>\');
                    '    alien.removeChild(alien.lastChild);
                    '    alien.appendChild(scriptNode);
+                   '    $salix.patchThis(document.getElementById(\'<name>_canvas\'), patch.patches[0].edits, null);
                    '}");
-            canvas(width(w), height(h), id("<name>_canvas"), "a canvas element");
+            //canvas(width(w), height(h), id("<name>_canvas"), "a canvas element");
+            build([width(w), height(h), id("<name>_canvas")] + attrs + ["a canvas element"], "canvas");
             script(theCode);
         });
 
