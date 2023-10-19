@@ -79,7 +79,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>0.23.1</version>
                 <configuration>
-                    <errorsAsWarnings>false</errorsAsWarnings>
+                    <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/main/rascal</src>
