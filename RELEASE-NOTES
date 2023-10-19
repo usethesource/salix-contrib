@@ -1,3 +1,14 @@
+## 0.2.3
+
+* added Path2D data type + canvas API functions for them.
+* mouse events on canvas elements.
+* added more demos
+* minor fixes, and blur avoidance
+* rudimentary support for static canvas elements (WIP)
+* edge/node adding/removal starting to work.
+* worked on improving the patch algorithms for corner cases..
+* towards jsPlumb alien integration.
+
 ## 0.2.2
 
 * bumped salix version
