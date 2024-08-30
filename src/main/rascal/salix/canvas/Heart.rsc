@@ -19,7 +19,7 @@ data Msg = flipColor();
 Model update(flipColor(), Model m) = m[color = m.color == "green" ? "red" : "green"];
   
 void view(Model m) {
-    myCanvas("love", 300, 300, (GC ctx) {
+    myCanvas("love", 300, 300, [], (GC ctx) {
         real x = 150.0;
         real y = 100.0;
         real w = 150.0;
