@@ -58,7 +58,7 @@ data Connector
   | stateMachine(int margin = 5, int curviness = 10, int proximityLimit = 80)
   ;
 
-data Face = top() | left() | right() | bottom();
+data Face = top() | left() | right() | bottom(); 
 
 // https://docs.jsplumbtoolkit.com/community/lib/anchors
 data Anchor
