@@ -12,7 +12,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/salix-contrib.git</developerConnection>
-        <tag>v0.2.1</tag>
+        <tag>head</tag>
     </scm>
 
     <repositories>
@@ -33,12 +33,12 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>rascal</artifactId>
-            <version>0.34.0</version>
+            <version>0.40.11</version>
         </dependency>
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>salix-core</artifactId>
-            <version>0.2.3</version>
+            <version>0.2.5</version>
         </dependency>
     </dependencies>
 
@@ -68,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.11.0</version>
                 <configuration>
                     <compilerArgument>-parameters</compilerArgument> 
                     <release>11</release>
@@ -77,7 +77,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.23.1</version>
+                <version>0.28.5</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
@@ -110,7 +110,6 @@
                             <enableStandardLibrary>true</enableStandardLibrary>
                             <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
-                            <license>${project.basedir}/LICENSE</license>
                             <sources>|http://github.com/usethesource/salix-contrib|</sources>
                             <issues>|http://github.com/usethesource/salix-contrib/issues|</issues>
                             <srcs>
@@ -125,7 +124,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.1.1</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <arguments>-Drascal.compile.skip -DskipTests -Drascal.tutor.skip</arguments>

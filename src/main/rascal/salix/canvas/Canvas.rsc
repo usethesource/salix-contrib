@@ -17,7 +17,6 @@ data CanvasRenderingContext2DSettings = ctxSettings(
   bool willReadFrequently = false
 );
 
-
 alias Path2D = list[Move];
 
 // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
