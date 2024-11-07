@@ -4,7 +4,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>salix-contrib</artifactId>
-    <version>0.2.7</version>
+    <version>0.2.8-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -12,7 +12,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/salix-contrib.git</developerConnection>
-        <tag>v0.2.7</tag>
+        <tag>head</tag>
     </scm>
 
     <repositories>
