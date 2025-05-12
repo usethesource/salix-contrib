@@ -77,11 +77,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-<<<<<<< HEAD
-                <version>0.28.9</version>
-=======
                 <version>0.30.0-RC24</version>
->>>>>>> 34f6910 (bumped salix-core to RC2)
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
