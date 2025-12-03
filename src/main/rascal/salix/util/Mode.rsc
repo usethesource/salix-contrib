@@ -11,7 +11,6 @@ module salix::util::Mode
 import Type;
 import ParseTree;
 import String;
-import List;
 
 data Mode
   = mode(str name, list[State] states, map[str, value] meta = ());
