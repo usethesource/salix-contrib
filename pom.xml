@@ -33,12 +33,12 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>rascal</artifactId>
-            <version>0.41.0</version>
+            <version>0.41.2</version>
         </dependency>
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>salix-core</artifactId>
-            <version>0.2.8</version>
+            <version>0.2.9</version>
         </dependency>
     </dependencies>
 
@@ -77,7 +77,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.30.0</version>
+                <version>0.30.3</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
