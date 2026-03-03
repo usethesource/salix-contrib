@@ -19,7 +19,7 @@ SalixApp[Model] aceApp(str id = "ace")
   = makeApp(id, init, withIndex("Ace integration", id, view), update);
 
 App[Model] aceWebApp()
-  = webApp(aceApp(), |lib://salix-contrib/src/main/rascal/salix|);
+  = webApp(aceApp(), getResource("salix/ace").parent);
 
 data Msg 
   = changeIt()
