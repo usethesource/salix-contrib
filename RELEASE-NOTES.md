@@ -1,3 +1,7 @@
+## 0.2.4 - 0.3.0
+
+* Bumped versions of `salix-core`, `rascal`, and `rascal-maven-plugin`
+
 ## 0.2.3
 
 * added Path2D data type + canvas API functions for them.
